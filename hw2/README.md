@@ -132,7 +132,7 @@ rootfs制作流程：
 
 完善 [fakeContainer.c](http://sei.pku.edu.cn/~caodg/course/osprac/code/fakeContainer.c)代码:
 
-![creen Shot 2018-03-21 at 14.11.3](Screen Shot 2018-03-21 at 14.11.30.png)
+![creen Shot 2018-03-21 at 14.11.3](a.png)
 
 
 
