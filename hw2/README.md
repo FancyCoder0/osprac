@@ -132,7 +132,7 @@ rootfs制作流程：
 
 完善 [fakeContainer.c](http://sei.pku.edu.cn/~caodg/course/osprac/code/fakeContainer.c)代码:
 
-![creen Shot 2018-03-21 at 14.11.3](./hw2/Screen Shot 2018-03-21 at 14.11.30.png)
+![creen Shot 2018-03-21 at 14.11.3](Screen Shot 2018-03-21 at 14.11.30.png)
 
 
 
@@ -144,15 +144,15 @@ CPU压力测试：
 
 单个进程下cpu运行情况：
 
-![creen Shot 2018-03-21 at 14.01.1](./hw2/Screen Shot 2018-03-21 at 14.01.14.png)
+![creen Shot 2018-03-21 at 14.01.1](Screen Shot 2018-03-21 at 14.01.14.png)
 
 两个进程下cpu运行情况：
 
-![creen Shot 2018-03-21 at 14.01.5](./hw2/Screen Shot 2018-03-21 at 14.01.58.png)
+![creen Shot 2018-03-21 at 14.01.5](Screen Shot 2018-03-21 at 14.01.58.png)
 
 三个进程下cpu运行情况：
 
-![creen Shot 2018-03-21 at 14.16.4](./hw2/Screen Shot 2018-03-21 at 14.16.45.png)
+![creen Shot 2018-03-21 at 14.16.4](Screen Shot 2018-03-21 at 14.16.45.png)
 
 解释：使用tmux分屏工具，上半部分是在fakecontainer中运行，下半部分在外部使用top进行监控。
 
@@ -164,29 +164,29 @@ memory压力测试：
 
 
 
-![creen Shot 2018-03-24 at 21.37.0](./hw2/Screen Shot 2018-03-24 at 21.37.01.png)
+![creen Shot 2018-03-24 at 21.37.0](Screen Shot 2018-03-24 at 21.37.01.png)
 
 测试的内存没有超过限制(128Mb)，一切运行正常。同时，可以在宿主中看到其运行时占用了不多的内存。
 
-![creen Shot 2018-03-24 at 21.36.1](./hw2/Screen Shot 2018-03-24 at 21.36.16.png)
+![creen Shot 2018-03-24 at 21.36.1](Screen Shot 2018-03-24 at 21.36.16.png)
 
 
 
 我们在启动LXC-container时对其添加了内存限制512M，当压力测试中产生内存分配函数的进程过多且申请的内存较多，且在多线程下时，容器会停止运行，
 
-![creen Shot 2018-03-21 at 14.05.0](./hw2/Screen Shot 2018-03-21 at 14.05.04.png)
+![creen Shot 2018-03-21 at 14.05.0](Screen Shot 2018-03-21 at 14.05.04.png)
 
 
 
 但如果使用单线程进行实验，并申请超过限制的内存大小，会发现进程并没有被杀死。
 
-![creen Shot 2018-03-24 at 21.32.4](./hw2/Screen Shot 2018-03-24 at 21.32.47.png)
+![creen Shot 2018-03-24 at 21.32.4](Screen Shot 2018-03-24 at 21.32.47.png)
 
 原因可能是宿主在管理时可能将其写入到了交换分区里。我们知道内存由cgroups进行管理的，Linux有一个Swap机制，即当内存不够用的时候，我们可以选择性的将一块磁盘、分区或者一个文件当成交换空间，将内存上一些临时用不到的数据放到交换空间上，以释放内存资源给急用的进程。
 
 我们可以通过在宿主中观察到此时stress占用了约1/4的内存（上图），且对比测试前Swap的内存情况（下图）可以发现used一项的增加(同时free一项的减少)，这一点验证了我们的猜想。
 
-![creen Shot 2018-03-24 at 21.32.2](./hw2/Screen Shot 2018-03-24 at 21.32.28.png)
+![creen Shot 2018-03-24 at 21.32.2](Screen Shot 2018-03-24 at 21.32.28.png)
 
 
 
@@ -196,7 +196,7 @@ memory压力测试：
 
 容器的初始进程和宿主中的初始进程有区别。宿主1号进程是systemd，容器中1号进程是bash。宿主运行真实任务，其分配进程号一般是比较大的，而容器中分配到的进程号非常小。
 
-![creen Shot 2018-03-24 at 21.27.2](./hw2/Screen Shot 2018-03-24 at 21.27.21.png)
+![creen Shot 2018-03-24 at 21.27.2](Screen Shot 2018-03-24 at 21.27.21.png)
 
 目前，lab1代码建的container还不能支持网络栈。lab1的代码还没能给出比较方便的API来让宿主访问容器，包括对容器内部发送信号，只能通过运行后进入容器再进行操作。同时，没有好的机制使得宿主来暂停、恢复容器，对容器进行方便的管理。LXC还支持snapshot，checkpoint等功能，这是lab1的还缺少的。
 
