@@ -33,7 +33,7 @@ INPUT、OUTPUT链主要用在“主机型防火墙”中，即主要针对服务
 
 表中包含链的信息如下：
 
-![](12.png)
+![](pic/12.png)
 
 
 
@@ -47,7 +47,7 @@ INPUT、OUTPUT链主要用在“主机型防火墙”中，即主要针对服务
 
 
 
-![](18.png)
+![](pic/18.png)
 
 规则链之间的顺序如下(在上图中可以看出)：
 
@@ -79,9 +79,9 @@ iptables -t filter -A INPUT -s $ip -j REJECT
 
 后图中前后两次ping同一地址
 
-![2](2.JPG)
+![2](pic/2.JPG)
 
-![1](./1.jpeg)
+![1](pic/1.jpeg)
 
 2）
 
@@ -117,17 +117,17 @@ sudo iptables -A OUTPUT -j ACCEPT
 
 利用nginx开启一个服务后访问（默认为80）
 
-![](13.png)
+![](pic/13.png)
 
 若修改nginx配置文件后改为81端口则无法访问：
 
-![](14.png)
+![](pic/14.png)
 
 
 
 若次数删去之前添加的iptables，则可正常访问：
 
-![](15.png)
+![](pic/15.png)
 
 3）拒绝回应来自某一特定IP地址的ping命令
 
@@ -135,7 +135,7 @@ sudo iptables -A OUTPUT -j ACCEPT
 sudo iptables -I OUTPUT -s $IP -p icmp --icmp-type echo-reply -j DROP
 ```
 
-![](17.png)
+![](pic/17.png)
 
 测试：
 
@@ -237,17 +237,17 @@ ip addr add 192.168.3.102/24 dev veth1
 
 host中看bridge情况：
 
-![4](4.png)
+![4](pic/4.png)
 
 host 中 ping container
 
-![3](3.png)
+![3](pic/3.png)
 
 
 
 container中ping host:
 
-![6](/Users/fancycoder/osprac/6.png)
+![6](pic/6.png)
 
 
 
@@ -269,7 +269,7 @@ route add default gw 192.168.3.101
 
 在container中测试：
 
-![7](7.png)
+![7](pic/7.png)
 
 
 
@@ -295,7 +295,7 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 6677 -j DNAT --to-destination 
 
 测试结果：
 
-![8](8.png)
+![8](pic/8.png)
 
 
 
@@ -311,7 +311,7 @@ SNAT（Source Network Address Translation，源地址转换）通常被叫做源
 
 在任何一个IP数据包中，都会有Source IP Address与Destination IP Address这两个字段，数据包所经过的路由器也是根据这两个字段是判定数据包是由什么地方发过来的，它要将数据包发到什么地方去。而iptables的SNAT就是根据这个原理，对Source IP Address与Destination IP Address进行修改。
 
-![10](10.png)
+![10](pic/10.png)
 
 图中正菱形的区域是对数据包进行判定转发的地方。在这里，系统会根据IP数据包中的destination ip address中的IP地址对数据包进行分发。如果destination ip adress是本机地址，数据将会被转交给INPUT链。如果不是本机地址，则交给FORWARD链检测。 
 
@@ -327,7 +327,7 @@ MASQUERADE 设定是将IP伪装成为封包出去(-o)的那块装置上的IP。�
 
 最后的效果如下图所示
 
-![](11.png)
+![](pic/11.png)
 
 
 
@@ -335,7 +335,7 @@ MASQUERADE 设定是将IP伪装成为封包出去(-o)的那块装置上的IP。�
 
 网络包进入到服务器中时，按照下图的配置方式，依次从bridge0到veth0再到veth1，到达container。
 
-![9](9.png)
+![9](pic/9.png)
 
 ### 参考资料
 
