@@ -79,7 +79,7 @@ iptables -t filter -A INPUT -s $ip -j REJECT
 
 后图中前后两次ping同一地址
 
-![2](2.jpg)
+![2](2.JPG)
 
 ![1](./1.jpeg)
 
@@ -237,7 +237,7 @@ ip addr add 192.168.3.102/24 dev veth1
 
 host中看bridge情况：
 
-![4](/Users/fancycoder/osprac/4.png)
+![4](4.png)
 
 host 中 ping container
 
@@ -295,7 +295,7 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 6677 -j DNAT --to-destination 
 
 测试结果：
 
-![8](/Users/fancycoder/osprac/8.png)
+![8](8.png)
 
 
 
