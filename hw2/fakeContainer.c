@@ -80,6 +80,7 @@ struct cgroup*  cgroup_control(pid_t pid){
     time_t now_time = time(NULL);
     sprintf(cgname, "fakecontainer_%d", (int)now_time);
     printf("%s\n", cgname);
+    printf("%u\n", pid);
 
     cgroup = cgroup_new_cgroup(cgname);
     if( !cgroup ){
