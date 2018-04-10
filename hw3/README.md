@@ -307,7 +307,13 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 6677 -j DNAT --to-destination 
 
 如图所示
 
-SNAT（Source Network Address Translation，源地址转换）通常被叫做源映射。
+![9](pic/9.png)
+
+网络包进入到服务器中时，按照下图的配置方式，通过物理网卡eth0依次通过bridge0到veth0再到veth1，到达container。
+
+其中在host中会进行即源地址转换。
+
+具体如下：SNAT（Source Network Address Translation，源地址转换）通常被叫做源映射。
 
 在任何一个IP数据包中，都会有Source IP Address与Destination IP Address这两个字段，数据包所经过的路由器也是根据这两个字段是判定数据包是由什么地方发过来的，它要将数据包发到什么地方去。而iptables的SNAT就是根据这个原理，对Source IP Address与Destination IP Address进行修改。
 
@@ -315,7 +321,7 @@ SNAT（Source Network Address Translation，源地址转换）通常被叫做源
 
 图中正菱形的区域是对数据包进行判定转发的地方。在这里，系统会根据IP数据包中的destination ip address中的IP地址对数据包进行分发。如果destination ip adress是本机地址，数据将会被转交给INPUT链。如果不是本机地址，则交给FORWARD链检测。 
 
-SNAT是要在数据包流出这台机器之前的最后一个链也就是POSTROUTING链来进行操作
+SNAT是要在数据包流出这台机器之前的最后一个链也就是POSTROUTING链来进行操作，如：
 
 ```bash
 iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -j SNAT --to-source $ip
@@ -323,9 +329,11 @@ iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -j SNAT --to-source $ip
 
 这个语句就是告诉系统把即将要流出本机的数据的source ip address修改成为*$ip*。这样，数据包在达到目的机器以后，目的机器会将包返回到*$ip*也就是本机。如果不做这个操作，那么你的数据包在传递的过程中，reply的包肯定会丢失。
 
-MASQUERADE 设定是将IP伪装成为封包出去(-o)的那块装置上的IP。不管现在eth0的出口获得了怎样的动态ip，MASQUERADE会自动读取eth0现在的ip地址然后做SNAT出去，这样就实现了很好的动态SNAT地址转换。
+而在上一部分中使用的MASQUERADE参数，是设定将IP伪装成为封包出去(-o)的那块装置上的IP。不管现在eth0的出口获得了怎样的动态ip，MASQUERADE会自动读取eth0现在的ip地址然后做SNAT出去，这样就实现了很好的动态SNAT地址转换。
 
-最后的效果如下图所示
+当然，我们也设置了端口映射，实际访问是的container中的80端口，但向外暴露出的是我设置的6677端口。
+
+最后的效果如下图所示（其中ip地址和本实验有区别，仅做示意）：
 
 ![](pic/11.png)
 
@@ -333,9 +341,7 @@ MASQUERADE 设定是将IP伪装成为封包出去(-o)的那块装置上的IP。�
 
 
 
-网络包进入到服务器中时，按照下图的配置方式，依次从bridge0到veth0再到veth1，到达container。
 
-![9](pic/9.png)
 
 ### 参考资料
 
