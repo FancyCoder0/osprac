@@ -126,7 +126,9 @@ sudo mount.glusterfs 162.105.175.144:gv /tmp/ok
 
 
 
-下面将存储卷gv挂载到LXC容器中，利用LXC容器的config。
+
+
+下面将存储卷挂载到LXC容器中，利用LXC容器的config文件。
 
 
 
@@ -144,13 +146,19 @@ sudo lxc-attach -n c1
 
 
 
-修改LXC的config文件进行挂载：
+修改LXC的config文件，加入如下代码进行挂载(挂载到home/test目录)：
 
 ```bash
-lxc.mount.entry = /opt/test /home/test none bind 0 0
+lxc.mount.entry = /opt/test home/test none bind,rw,create=dir 0 0
 ```
 
 
+
+进入test1后可以看到结果符合我们的预期。
+
+
+
+![5](pic/10.png)
 
 
 
