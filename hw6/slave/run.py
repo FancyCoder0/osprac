@@ -2,14 +2,23 @@
 import lxc
 import sys
 import os
+import threading
+from xmlrpc.server import SimpleXMLRPCServer
+from xmlrpc.server import SimpleXMLRPCRequestHandler
+
 
 task_status = {}
 task_belong = {}
 
-def kill_task(task_id):
+def get_task_status(data):
+    task_id = data['name']
+    return task_status[task_id]
+
+def kill_task(data):
+    task_id = data['name']
     c = lxc.Container(task_id)
     if c.state == "STOPPED":
-        return {"code":0, "data":None, "message":""} # empty value
+        return {"code":0, "data":"" , "message":""} # empty value
     
     # Try to stop
     c.stop()
@@ -18,11 +27,10 @@ def kill_task(task_id):
     if not c.stop():
         return {"code":1, "data": "fail", "message":""}
     else:
+        task_status[task_id] = "Failed"
         return {"code":0, "data": "success", "message":""}
 
-
-# sleep 6 && echo 10 && echo 20
-def run_task(data):
+def run_task_in_container(data):
     global task_status
     global task_belong
 
@@ -34,19 +42,24 @@ def run_task(data):
     code_succ = {"code":0, "task_id": task_id, "message":"successful!"}
     code_fail = {"code":1, "task_id": task_id, "message":"failed!"}
     
-    out_file = open(data.get('outputPath', 'output.txt'), 'w+')
-    log_file = open(data.get('logPath', 'log.txt'), 'w+')
+    out_file = open(data.get('outputPath', 'data/output.txt'), 'w+')
+    log_file = open(data.get('logPath', 'data/log.txt'), 'w+')
     
     def close_and_mark(status_str):
         task_status[task_id] = status_str
         out_file.close()
         log_file.close()
 
+    image = data.get('image', None)
+    config_path = '/var/lib/lxc/%s/config' % image
+
     c = lxc.Container(task_id)
-    lxc_choice = {"dist": "debian","release": "sid","arch": "amd64"}
+
+    # c = lxc.Container(task_id, config_path)
 
     if not c.defined:
         # Create the container rootfs
+        lxc_choice = {"dist": "debian","release": "sid","arch": "amd64"}
         if not c.create("download", lxc.LXC_CREATE_QUIET, lxc_choice):
             print("Failed to create the container rootfs", file=log_file)
             close_and_mark("Failed")
@@ -74,8 +87,6 @@ def run_task(data):
         close_and_mark("Failed")
         return code_fail
     
-    
-
     # Execute the task
     retry_time = int(data.get('maxRetryCount', 0))
     success_flag = False
@@ -89,7 +100,6 @@ def run_task(data):
     if not success_flag:
         print("Fail for %d times!" % retry_time, file=log_file)
         close_and_mark("Failed")
-        return code_fail
     
     # Shutdown the container
     if not c.shutdown(30):
@@ -97,7 +107,30 @@ def run_task(data):
         if not c.stop():
             print("Failed to kill the container", file=log_file)
             close_and_mark("Failed")
-            return code_fail
+    
+    if success_flag:
+        close_and_mark("Succeeded")
+        return code_succ
+    else:
+        return code_fail
 
-    close_and_mark("Succeeded")
-    return code_succ
+def run_task(data):
+    task_id = data['name']
+    threading.Thread(target=run_task_in_container, args=[data]).start()
+    threading.Timer(int(data.get("timeout", 60)), kill_task, args=[{'name': task_id}]).start()
+    ret = {"code": 0, "data": {}, "message": ""}
+    ret["data"]["task_id"] = task_id
+    return ret
+
+
+
+if __name__ == '__main__':
+
+    # Create server
+    server = SimpleXMLRPCServer(("localhost", 8000))
+    server.register_function(run_task)
+    server.register_function(kill_task)
+    server.register_function(get_task_status)
+    
+    server.serve_forever()
+
