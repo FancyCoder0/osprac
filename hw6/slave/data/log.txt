@@ -1,2 +1,1 @@
-bash: sl: command not found
 Fail for 0 times!

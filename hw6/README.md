@@ -6,9 +6,9 @@
 
 
 
-master的对外web server的API接口使用flask实现。具体的API接口见Usage。
+master的对外web server的API接口使用flask实现。具体的API接口见API。
 
-对于master和slave之间的通信使用了RPC方法。
+对于master和slave之间的通信使用了RPC方法。同时编写了较为有效的单元测试，测试结果见Test。
 
 
 
@@ -26,9 +26,10 @@ sudo python3 manage.py runserver --host 0.0.0.0
 
 
 
-### Usage
+### API
 
 /
+
 ![index](pic/index.jpg)
 
 
@@ -91,3 +92,4 @@ sudo python3 run.py
 sudo python3 manage.py test
 ```
 
+![test](pic/test.jpg)
