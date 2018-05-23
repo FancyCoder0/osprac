@@ -1,5 +1,6 @@
 import unittest
 import json
+import time
 
 from flask import current_app, url_for
 from app import create_app
@@ -30,7 +31,7 @@ class BasicsTestCase(unittest.TestCase):
         response = self.client.get(url_for('main.index'))
         self.assertTrue('Homepage' in response.get_data(as_text=True))
     
-    def test_task(self):
+    def test_task_success(self):
         response = self.client.get(url_for('main.submit'), json={
             "name" : "test-task1",
             "commandLine": "sleep 10 && echo 10",
@@ -40,7 +41,28 @@ class BasicsTestCase(unittest.TestCase):
             "timeout": "21600",
             "imageId": "my-ubuntu-16.04",       
         })
-
         json_response = json.loads(response.get_data(as_text=True))
-
         self.assertEqual(json_response["code"], 0)
+        
+    def test_task_fail(self):
+        response = self.client.get(url_for('main.submit'), json={
+            "name" : "test-task2",
+            "commandLine": "sl",
+            "outputPath": "data/output.txt",
+            "logPath": "data/log.txt",
+            "maxRetryCount": "3", 
+            "timeout": "21600",
+            "imageId": "my-ubuntu-16.04",       
+        })
+        json_response = json.loads(response.get_data(as_text=True))
+        self.assertEqual(json_response["code"], 0)
+
+
+        time.sleep(20)
+
+        response = self.client.get(url_for('main.status'), json={
+            "name" : "test-task2",     
+        })
+        json_response = json.loads(response.get_data(as_text=True))
+        self.assertEqual(json_response, "Failed")
+

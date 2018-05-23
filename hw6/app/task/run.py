@@ -61,10 +61,12 @@ def run_task(data):
     task_belong[task_id] = slave_id
     task_status[task_id] = "Running"
 
+    """
     # Query some information
     print("Container state: %s" % c.state)
     print("Container PID: %s" % c.init_pid)
     sys.stdout.flush()
+    """
 
     # Wait for connectivity
     if not c.get_ips(timeout=30):

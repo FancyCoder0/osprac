@@ -23,16 +23,19 @@ def submit():
 
 	ret = {"code": 0, "data": {}, "message": ""}
 	ret["data"]["task_id"] = task_id
-	
+
 	return jsonify(ret)
 
 @main.route('/job/kill', methods=['GET', 'POST'])
 def kill():
-	task_id = request.args['task_id']
+	json_data = request.get_json()
+	task_id = json_data['name']
 	return jsonify(run.kill_task(task_id))
 
 @main.route('/job/status', methods=['GET', 'POST'])
 def status():
-	task_id = request.args['task_id']
+	json_data = request.get_json()
+	task_id = json_data['name']
+	
 	return jsonify(run.task_status.get(task_id))
 
