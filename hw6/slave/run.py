@@ -68,6 +68,13 @@ def run_task_in_container(data):
         rootfs_path = '/var/lib/lxc/%s/config' % image
         c.set_config_item('lxc.rootfs', rootfs_path)
     
+    resource = data.get('resource', None)
+    if resource is not None:
+        if 'cpu' in resource:
+            c.set_config_item('lxc.cgroup.cpuset.cpus', resource.get('cpu'))
+        if 'memeory' in resource:
+            c.set_config_item('lxc.cgroup.memory.limit_in_bytes', resource.get('memeory'))
+
     # Start the container
     if not c.start():
         print("Failed to start the container", file=log_file)
