@@ -35,7 +35,6 @@ class BasicsTestCase(unittest.TestCase):
         response = self.client.get(url_for('main.submit'), json={
             "name" : "test-task1",
             "commandLine": "sleep 10 && echo 10",
-            "image": "my-ubuntu",       
         })
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(json_response["code"], 0)
@@ -54,7 +53,6 @@ class BasicsTestCase(unittest.TestCase):
             "name" : "test-task2",
             "commandLine": "sl",
             "maxRetryCount": "3", 
-            "image": "my-ubuntu",       
         })
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(json_response["code"], 0)
@@ -71,7 +69,6 @@ class BasicsTestCase(unittest.TestCase):
         response = self.client.get(url_for('main.submit'), json={
             "name" : "test-task3",
             "commandLine": "sleep 30",
-            "image": "my-ubuntu",       
         })
 
         time.sleep(10)
@@ -99,7 +96,6 @@ class BasicsTestCase(unittest.TestCase):
             "name" : "test-task4",
             "commandLine": "sleep 100",
             "timeout": "5",
-            "image": "my-ubuntu",       
         })
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(json_response["code"], 0)

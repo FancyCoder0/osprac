@@ -50,12 +50,7 @@ def run_task_in_container(data):
         out_file.close()
         log_file.close()
 
-    image = data.get('image', None)
-    config_path = '/var/lib/lxc/%s/config' % image
-
     c = lxc.Container(task_id)
-
-    # c = lxc.Container(task_id, config_path)
 
     if not c.defined:
         # Create the container rootfs
@@ -65,6 +60,11 @@ def run_task_in_container(data):
             close_and_mark("Failed")
             return code_fail
 
+    image = data.get('image', None)
+    if image is not None:
+        rootfs_path = '/var/lib/lxc/%s/config' % image
+        c.set_config_item('lxc.rootfs', rootfs_path)
+    
     # Start the container
     if not c.start():
         print("Failed to start the container", file=log_file)
