@@ -29,7 +29,8 @@ class BasicsTestCase(unittest.TestCase):
     
     def test_app_homepage(self):
         response = self.client.get(url_for('main.index'))
-        self.assertTrue('Homepage' in response.get_data(as_text=True))
+        json_response = json.loads(response.get_data(as_text=True))
+        self.assertEqual(json_response, {})
     
     def test_server_response_and_task_success(self):
         response = self.client.get(url_for('main.submit'), json={
@@ -41,11 +42,9 @@ class BasicsTestCase(unittest.TestCase):
 
         time.sleep(30)
 
-        response = self.client.get(url_for('main.status'), json={
-            "name" : "test-task1",     
-        })
+        response = self.client.get(url_for('main.status'), json={"name" : "test-task1", })
         json_response = json.loads(response.get_data(as_text=True))
-        self.assertEqual(json_response, "Succeeded")
+        self.assertEqual(json_response["status"], "Succeeded")
 
         
     def test_task_fail(self):
@@ -63,7 +62,7 @@ class BasicsTestCase(unittest.TestCase):
             "name" : "test-task2",     
         })
         json_response = json.loads(response.get_data(as_text=True))
-        self.assertEqual(json_response, "Failed")
+        self.assertEqual(json_response["status"], "Failed")
 
     def test_task_kill(self):
         response = self.client.get(url_for('main.submit'), json={
@@ -89,7 +88,7 @@ class BasicsTestCase(unittest.TestCase):
 
         response = self.client.get(url_for('main.status'), json={"name" : "test-task3", }, follow_redirects=True)
         json_response = json.loads(response.get_data(as_text=True))
-        self.assertEqual(json_response, "Failed")
+        self.assertEqual(json_response["status"], "Failed")
 
     def test_task_timeout(self):
         response = self.client.get(url_for('main.submit'), json={
@@ -102,11 +101,9 @@ class BasicsTestCase(unittest.TestCase):
 
         time.sleep(15)
 
-        response = self.client.get(url_for('main.status'), json={
-            "name" : "test-task4",     
-        })
+        response = self.client.get(url_for('main.status'), json={"name" : "test-task4", })
         json_response = json.loads(response.get_data(as_text=True))
-        self.assertEqual(json_response, "Failed")
+        self.assertEqual(json_response["status"], "Failed")
 
 
         

@@ -8,11 +8,14 @@ from xmlrpc.server import SimpleXMLRPCRequestHandler
 
 
 task_status = {}
-task_belong = {}
+task_cluster = {}
+
+def get_all_tasks():
+    return list(task_status.keys())
 
 def get_task_status(data):
     task_id = data['name']
-    return task_status[task_id]
+    return {"cluster":task_cluster[task_id], "status": task_status[task_id]}
 
 def kill_task(data):
     task_id = data['name']
@@ -32,7 +35,7 @@ def kill_task(data):
 
 def run_task_in_container(data):
     global task_status
-    global task_belong
+    global task_cluster
 
     slave_id = "slave1"
 
@@ -71,7 +74,7 @@ def run_task_in_container(data):
         close_and_mark("Failed")
         return code_fail
     
-    task_belong[task_id] = slave_id
+    task_cluster[task_id] = slave_id
     task_status[task_id] = "Running"
 
     """
@@ -131,6 +134,7 @@ if __name__ == '__main__':
     server.register_function(run_task)
     server.register_function(kill_task)
     server.register_function(get_task_status)
-    
+    server.register_function(get_all_tasks)
+
     server.serve_forever()
 

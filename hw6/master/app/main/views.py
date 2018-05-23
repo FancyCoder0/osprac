@@ -7,7 +7,11 @@ slave = ServerProxy('http://localhost:8000')
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-	return '<h1>OS-Prac lab6 Homepage</h1>'
+	tasks = slave.get_all_tasks()
+	result = {}
+	for task in tasks:
+		result[task] = slave.get_task_status({'name': task})
+	return jsonify(result)
 
 @main.route('/job/task', methods=['GET', 'POST'])
 def submit():

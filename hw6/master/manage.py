@@ -18,8 +18,3 @@ def test():
 if __name__ == "__main__":
     manager.run()
 
-
-# sudo python3 manage.py runserver --host 0.0.0.0 
-# sudo python3 manage.py test
-
-# curl localhost:5000/job/status
