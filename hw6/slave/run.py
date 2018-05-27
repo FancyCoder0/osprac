@@ -63,11 +63,13 @@ def run_task_in_container(data):
             close_and_mark("Failed")
             return code_fail
 
+    # Load the image
     image = data.get('image', None)
     if image is not None:
-        rootfs_path = '/var/lib/lxc/%s/config' % image
+        rootfs_path = '/var/lib/lxc/%s/rootfs' % image
         c.set_config_item('lxc.rootfs', rootfs_path)
     
+    # Limit the resource
     resource = data.get('resource', None)
     if resource is not None:
         if 'cpu' in resource:
@@ -75,49 +77,57 @@ def run_task_in_container(data):
         if 'memeory' in resource:
             c.set_config_item('lxc.cgroup.memory.limit_in_bytes', resource.get('memeory'))
 
+    # Mount the package path
+    package_path = data.get('packagePath', None)
+    if package_path is not None:
+        c.set_config_item('lxc.mount.entry', '%s home none bind,rw,create=dir 0 0' % package_path)
+ 
     # Start the container
     if not c.start():
         print("Failed to start the container", file=log_file)
         close_and_mark("Failed")
         return code_fail
     
+    # Update Status
     task_cluster[task_id] = slave_id
     task_status[task_id] = "Running"
 
     """
-    # Query some information
+    # print some information about container
     print("Container state: %s" % c.state)
     print("Container PID: %s" % c.init_pid)
     sys.stdout.flush()
     """
 
+    success_flag = False
+
     # Wait for connectivity
     if not c.get_ips(timeout=30):
         print("Failed to connect the container", file=log_file)
         close_and_mark("Failed")
-        return code_fail
+    else:
+        # Execute the task
+        retry_time = int(data.get('maxRetryCount', 0))
+        
+        for retry in range(retry_time + 1):
+            exit_code = c.attach_wait(lxc.attach_run_command, ["bash", "-c", commandLine], stdout=out_file, stderr=log_file)
+            if exit_code == 0:
+                success_flag = True
+                break
     
-    # Execute the task
-    retry_time = int(data.get('maxRetryCount', 0))
-    success_flag = False
-    for retry in range(retry_time + 1):
-        exit_code = c.attach_wait(lxc.attach_run_command, ["bash", "-c", commandLine], stdout=out_file, stderr=log_file)
-        if exit_code == 0:
-            success_flag = True
-            break
-    
-    # Check if it's succeeded
-    if not success_flag:
-        print("Fail for %d times!" % retry_time, file=log_file)
-        close_and_mark("Failed")
+        # Check if it's succeeded
+        if not success_flag:
+            print("Fail for %d times!" % retry_time, file=log_file)
+            close_and_mark("Failed")
     
     # Shutdown the container
     if not c.shutdown(30):
         c.stop()
         if not c.stop():
             print("Failed to kill the container", file=log_file)
-            close_and_mark("Failed")
+            close_and_mark("Unknown")
     
+    # return
     if success_flag:
         close_and_mark("Succeeded")
         return code_succ
@@ -131,8 +141,6 @@ def run_task(data):
     ret = {"code": 0, "data": {}, "message": ""}
     ret["data"]["task_id"] = task_id
     return ret
-
-
 
 if __name__ == '__main__':
 

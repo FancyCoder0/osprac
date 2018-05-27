@@ -28,6 +28,8 @@ sudo python3 manage.py runserver --host 0.0.0.0
 
 ### API
 
+可以参考![test_basics.py](https://github.com/luyao-os/osprac/blob/master/hw6/master/tests/test_basics.py)
+
 /
 
 ![index](pic/index.jpg)
@@ -47,15 +49,17 @@ sudo python3 manage.py runserver --host 0.0.0.0
 
     "maxRetryCount": "2", # 重试次数，默认为0
     
+    # 资源限制
     "resource": {
-        "cpu": "0,1",
-        "memeory": "512M",
+        "cpu": "0,1", # cpu限制
+        "memeory": "512M", # 内存限制
     },
     
+    "packagePath": "data/testdir", # 程序执行所需的文件包，挂载到了对应的/home目录下
+
     "timeout": "21600", # 超时时限(秒），默认为60s
 
-    "image": "my-ubuntu", # 镜像名称，默认为新建一个空的LXC镜像
-                          # 注意这里若有参数，则需要保证镜像在本地存在
+    "image": "my-ubuntu", # 镜像名称，默认为新建一个空的LXC镜像，注意这里若有参数，则需要保证镜像在本地存在
 }
 
 ```
