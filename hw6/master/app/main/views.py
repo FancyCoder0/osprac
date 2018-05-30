@@ -4,12 +4,12 @@ from xmlrpc.client import ServerProxy
 from . import main
 
 slave1 = ServerProxy('http://localhost:8000')
-# slave2 = ServerProxy('http://162.105.175.75:8000')
+slave2 = ServerProxy('http://162.105.175.75:8000')
 
-slave_pool = [slave1]
+# slave_pool = [slave1]
 
 # test for multi slaves
-# slave_pool = [slave1, slave2]
+slave_pool = [slave1, slave2]
 
 def get_slave():
 	import random

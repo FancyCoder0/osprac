@@ -16,6 +16,7 @@ master的对外web server的API接口使用flask实现。具体的API接口见AP
 
 ```bash
 # in slave dir: /slave
+# 在对应的/slave/run.py中修改slave_id和slave_ip为对应节点的属性
 sudo python3 run.py
 ```
 
@@ -28,7 +29,7 @@ sudo python3 manage.py runserver --host 0.0.0.0
 
 ### API
 
-可以参考![test_basics.py](https://github.com/luyao-os/osprac/blob/master/hw6/master/tests/test_basics.py)
+可以参考[test_basics.py](https://github.com/luyao-os/osprac/blob/master/hw6/master/tests/test_basics.py)
 
 /
 
@@ -96,4 +97,12 @@ sudo python3 run.py
 sudo python3 manage.py test
 ```
 
+单节点单元测试结果
 ![test](pic/test.jpg)
+
+多节点单元测试结果
+![test2](pic/multi_slaves_test.png)
+
+多节点手动测试结果
+![test3](pic/index2.png)
+
