@@ -7,15 +7,21 @@ from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 
 
+slave_id = "slave1"
+slave_ip = "localhost"
+
 task_status = {}
-task_cluster = {}
 
 def get_all_tasks():
     return list(task_status.keys())
 
 def get_task_status(data):
     task_id = data['name']
-    return {"cluster":task_cluster[task_id], "status": task_status[task_id]}
+    return {"cluster":slave_id, "status": task_status[task_id]}
+
+def check_task_exist(data):
+	task_id = data['name']
+	return task_id in task_status
 
 def kill_task(data):
     task_id = data['name']
@@ -35,13 +41,12 @@ def kill_task(data):
 
 def run_task_in_container(data):
     global task_status
-    global task_cluster
-
-    slave_id = "slave1"
 
     task_id = data['name']
     commandLine = data['commandLine']
-    
+
+    task_status[task_id] = "Pending"
+
     code_succ = {"code":0, "task_id": task_id, "message":"successful!"}
     code_fail = {"code":1, "task_id": task_id, "message":"failed!"}
     
@@ -88,8 +93,6 @@ def run_task_in_container(data):
         close_and_mark("Failed")
         return code_fail
     
-    # Update Status
-    task_cluster[task_id] = slave_id
     task_status[task_id] = "Running"
 
     """
@@ -145,11 +148,11 @@ def run_task(data):
 if __name__ == '__main__':
 
     # Create server
-    server = SimpleXMLRPCServer(("localhost", 8000))
+    server = SimpleXMLRPCServer((slave_ip, 8000))
     server.register_function(run_task)
     server.register_function(kill_task)
+    server.register_function(check_task_exist)
     server.register_function(get_task_status)
     server.register_function(get_all_tasks)
-
     server.serve_forever()
 

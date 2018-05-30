@@ -13,7 +13,7 @@ class BasicsTestCase(unittest.TestCase):
         self.app = create_app("testing")
         self.app_context = self.app.app_context()
         self.app_context.push()
-        self.client = self.app.test_client(use_cookies=True)
+        self.client = self.app.test_client()
 
     def tearDown(self):
         self.app_context.pop()
@@ -36,18 +36,17 @@ class BasicsTestCase(unittest.TestCase):
     def test_server_response_and_task_success(self):
         response = self.client.get(url_for('main.submit'), json={
             "name" : "test-task1",
-            "commandLine": "sleep 10 && echo 10",
-        })
+            "commandLine": "sleep 3 && echo 10",
+        }, follow_redirects=True)
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(json_response["code"], 0)
 
-        time.sleep(30)
+        time.sleep(10)
 
-        response = self.client.get(url_for('main.status'), json={"name" : "test-task1", })
+        response = self.client.get(url_for('main.status'), json={"name" : "test-task1", }, follow_redirects=True)
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(json_response["status"], "Succeeded")
 
-        
     def test_task_fail(self):
         response = self.client.get(url_for('main.submit'), json={
             "name" : "test-task2",
@@ -140,10 +139,4 @@ class BasicsTestCase(unittest.TestCase):
         with open(outputpath) as f:
             self.assertEqual(f.read().strip(),"Hello!")
         """
-
-    
-
-
-        
-        
 
